@@ -1,0 +1,773 @@
+{
+  "subjects": [
+    {
+      "id": "math",
+      "name": "מתמטיקה",
+      "exams": [
+        {
+          "id": "math_bagrut_3",
+          "name": "בגרות 3 יח״ל",
+          "topics": [
+            {
+              "id": "math_3_algebra",
+              "name": "אלגברה בסיסית",
+              "subtopics": [
+                {
+                  "id": "math_3_equations",
+                  "name": "משוואות ואי-שוויונים"
+                },
+                {
+                  "id": "math_3_expressions",
+                  "name": "ביטויים אלגבריים"
+                },
+                {
+                  "id": "math_3_exponents",
+                  "name": "חוקי חזקות ושורשים"
+                }
+              ]
+            },
+            {
+              "id": "math_3_functions",
+              "name": "פונקציות",
+              "subtopics": [
+                {
+                  "id": "math_3_linear",
+                  "name": "פונקציה קווית"
+                },
+                {
+                  "id": "math_3_quadratic",
+                  "name": "פונקציה ריבועית"
+                },
+                {
+                  "id": "math_3_exponential",
+                  "name": "פונקציה מעריכית"
+                }
+              ]
+            },
+            {
+              "id": "math_3_geometry",
+              "name": "גיאומטריה",
+              "subtopics": [
+                {
+                  "id": "math_3_triangles",
+                  "name": "משולשים ויחסים"
+                },
+                {
+                  "id": "math_3_pythagoras",
+                  "name": "משפט פיתגורס"
+                },
+                {
+                  "id": "math_3_circles",
+                  "name": "מעגלים"
+                }
+              ]
+            },
+            {
+              "id": "math_3_trigonometry",
+              "name": "טריגונומטריה",
+              "subtopics": [
+                {
+                  "id": "math_3_trig_basics",
+                  "name": "סינוס, קוסינוס וטנגנס"
+                },
+                {
+                  "id": "math_3_right_triangles",
+                  "name": "פתרון משולשים ישרי זווית"
+                }
+              ]
+            },
+            {
+              "id": "math_3_statistics",
+              "name": "סטטיסטיקה והסתברות",
+              "subtopics": [
+                {
+                  "id": "math_3_stats_basics",
+                  "name": "ממוצע, חציון ושכיח"
+                },
+                {
+                  "id": "math_3_probability",
+                  "name": "עקרונות הסתברות"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "math_bagrut_4",
+          "name": "בגרות 4 יח״ל",
+          "topics": [
+            {
+              "id": "math_4_algebra",
+              "name": "אלגברה ופונקציות",
+              "subtopics": [
+                {
+                  "id": "math_4_complex_basic",
+                  "name": "מספרים מרוכבים (חלק בסיסי)"
+                },
+                {
+                  "id": "math_4_logarithms",
+                  "name": "לוגריתמים וחוקי חזקות"
+                },
+                {
+                  "id": "math_4_exponential_eq",
+                  "name": "משוואות מעריכיות"
+                },
+                {
+                  "id": "math_4_polynomial",
+                  "name": "פונקציות פולינומיות"
+                },
+                {
+                  "id": "math_4_sequences",
+                  "name": "סדרות (חשבון וגיאומטרי)"
+                }
+              ]
+            },
+            {
+              "id": "math_4_trigonometry",
+              "name": "טריגונומטריה",
+              "subtopics": [
+                {
+                  "id": "math_4_trig_ratios",
+                  "name": "יחסים טריגונומטריים"
+                },
+                {
+                  "id": "math_4_sin_cos_laws",
+                  "name": "משפט הסינוסים והקוסינוסים"
+                },
+                {
+                  "id": "math_4_trig_graphs",
+                  "name": "גרפים של פונקציות טריגונומטריות"
+                },
+                {
+                  "id": "math_4_trig_equations",
+                  "name": "פתרון משוואות טריגונומטריות"
+                }
+              ]
+            },
+            {
+              "id": "math_4_analytic",
+              "name": "גיאומטריה אנליטית",
+              "subtopics": [
+                {
+                  "id": "math_4_lines",
+                  "name": "משוואות ישרים"
+                },
+                {
+                  "id": "math_4_circles",
+                  "name": "מעגלים במערכת צירים"
+                }
+              ]
+            },
+            {
+              "id": "math_4_calculus",
+              "name": "חדו״א",
+              "subtopics": [
+                {
+                  "id": "math_4_derivatives",
+                  "name": "נגזרות ופונקציות נגזרות"
+                },
+                {
+                  "id": "math_4_investigation",
+                  "name": "חקירת פונקציות"
+                },
+                {
+                  "id": "math_4_integrals",
+                  "name": "אינטגרלים בסיסיים"
+                }
+              ]
+            },
+            {
+              "id": "math_4_vectors",
+              "name": "וקטורים",
+              "subtopics": [
+                {
+                  "id": "math_4_vector_ops",
+                  "name": "חיבור וכפל וקטורים"
+                },
+                {
+                  "id": "math_4_vector_geometry",
+                  "name": "שימושים גיאומטריים"
+                }
+              ]
+            },
+            {
+              "id": "math_4_probability",
+              "name": "הסתברות וסטטיסטיקה",
+              "subtopics": [
+                {
+                  "id": "math_4_combinatorics",
+                  "name": "הסתברות קומבינטורית"
+                },
+                {
+                  "id": "math_4_normal_dist",
+                  "name": "התפלגות נורמלית"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "math_bagrut_5",
+          "name": "בגרות 5 יח״ל",
+          "topics": [
+            {
+              "id": "math_5_advanced_algebra",
+              "name": "אלגברה מתקדמת",
+              "subtopics": [
+                {
+                  "id": "math_5_complex",
+                  "name": "מספרים מרוכבים (מורחב)"
+                },
+                {
+                  "id": "math_5_infinite_seq",
+                  "name": "סדרות אינסופיות"
+                },
+                {
+                  "id": "math_5_log_inequalities",
+                  "name": "לוגריתמים ואי-שוויונים מעריכיים"
+                }
+              ]
+            },
+            {
+              "id": "math_5_functions",
+              "name": "פונקציות ומספרים מרוכבים",
+              "subtopics": [
+                {
+                  "id": "math_5_rational",
+                  "name": "פונקציות רציונליות"
+                },
+                {
+                  "id": "math_5_parameters",
+                  "name": "פונקציות עם פרמטרים"
+                },
+                {
+                  "id": "math_5_root_equations",
+                  "name": "משוואות ואי-שוויונים עם שורשים"
+                }
+              ]
+            },
+            {
+              "id": "math_5_trigonometry",
+              "name": "טריגונומטריה מורחבת",
+              "subtopics": [
+                {
+                  "id": "math_5_general_trig",
+                  "name": "פונקציות טריגונומטריות כלליות"
+                },
+                {
+                  "id": "math_5_complex_identities",
+                  "name": "זהויות טריגונומטריות מורכבות"
+                }
+              ]
+            },
+            {
+              "id": "math_5_calculus",
+              "name": "חדו״א מתקדם",
+              "subtopics": [
+                {
+                  "id": "math_5_complex_investigation",
+                  "name": "חקירת פונקציות מורכבות"
+                },
+                {
+                  "id": "math_5_higher_derivatives",
+                  "name": "נגזרות מסדר גבוה"
+                },
+                {
+                  "id": "math_5_complex_integrals",
+                  "name": "אינטגרלים מורכבים"
+                },
+                {
+                  "id": "math_5_volumes",
+                  "name": "שטחים ונפחים בין גרפים"
+                }
+              ]
+            },
+            {
+              "id": "math_5_geometry",
+              "name": "גיאומטריה אנליטית ווקטורים",
+              "subtopics": [
+                {
+                  "id": "math_5_planes",
+                  "name": "משוואות של ישרים ומישורים"
+                },
+                {
+                  "id": "math_5_3d_vectors",
+                  "name": "וקטורים תלת-ממדיים"
+                },
+                {
+                  "id": "math_5_vector_products",
+                  "name": "מוצרים וקטוריים"
+                }
+              ]
+            },
+            {
+              "id": "math_5_probability",
+              "name": "סטטיסטיקה והסתברות מתקדמות",
+              "subtopics": [
+                {
+                  "id": "math_5_random_vars",
+                  "name": "משתנים מקריים"
+                },
+                {
+                  "id": "math_5_conditional",
+                  "name": "הסתברות מותנית"
+                },
+                {
+                  "id": "math_5_distributions",
+                  "name": "ניתוח פונקציות התפלגות"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "physics",
+      "name": "פיזיקה",
+      "exams": [
+        {
+          "id": "physics_bagrut_5",
+          "name": "בגרות 5 יח״ל",
+          "topics": [
+            {
+              "id": "physics_mechanics",
+              "name": "מכניקה",
+              "subtopics": [
+                {
+                  "id": "physics_kinematics",
+                  "name": "קינמטיקה"
+                },
+                {
+                  "id": "physics_dynamics",
+                  "name": "דינמיקה (חוקי ניוטון)"
+                },
+                {
+                  "id": "physics_energy",
+                  "name": "עבודה ואנרגיה"
+                },
+                {
+                  "id": "physics_momentum",
+                  "name": "תנע ושימור תנע"
+                },
+                {
+                  "id": "physics_circular",
+                  "name": "תנועה מעגלית וכוחות מרכזיים"
+                }
+              ]
+            },
+            {
+              "id": "physics_electricity",
+              "name": "חשמל ומגנטיות",
+              "subtopics": [
+                {
+                  "id": "physics_electric_field",
+                  "name": "שדה חשמלי ומטענים"
+                },
+                {
+                  "id": "physics_circuits",
+                  "name": "מעגלים חשמליים"
+                },
+                {
+                  "id": "physics_magnetism",
+                  "name": "מגנטיות והשראה אלקטרומגנטית"
+                }
+              ]
+            },
+            {
+              "id": "physics_radiation",
+              "name": "קרינה וחומר",
+              "subtopics": [
+                {
+                  "id": "physics_atom_models",
+                  "name": "מודלים של האטום"
+                },
+                {
+                  "id": "physics_radiation_types",
+                  "name": "קרינה מייננת ולא מייננת"
+                },
+                {
+                  "id": "physics_nuclear",
+                  "name": "פיזיקה גרעינית"
+                }
+              ]
+            },
+            {
+              "id": "physics_optics",
+              "name": "אופטיקה וגלים",
+              "subtopics": [
+                {
+                  "id": "physics_mechanical_waves",
+                  "name": "גלים מכניים"
+                },
+                {
+                  "id": "physics_em_waves",
+                  "name": "גלים אלקטרומגנטיים"
+                },
+                {
+                  "id": "physics_geometric_optics",
+                  "name": "אופטיקה גיאומטרית"
+                },
+                {
+                  "id": "physics_physical_optics",
+                  "name": "אופטיקה פיזיקלית"
+                }
+              ]
+            },
+            {
+              "id": "physics_relativity",
+              "name": "תורת היחסות",
+              "subtopics": [
+                {
+                  "id": "physics_special_relativity",
+                  "name": "יחסות פרטית"
+                },
+                {
+                  "id": "physics_general_relativity",
+                  "name": "יחסות כללית"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cs",
+      "name": "מדעי המחשב",
+      "exams": [
+        {
+          "id": "cs_programming",
+          "name": "תכנות",
+          "topics": [
+            {
+              "id": "cs_basic_programming",
+              "name": "יסודות התכנות"
+            },
+            {
+              "id": "cs_data_structures",
+              "name": "מבני נתונים"
+            },
+            {
+              "id": "cs_algorithms",
+              "name": "אלגוריתמים"
+            },
+            {
+              "id": "cs_oop",
+              "name": "תכנות מונחה עצמים"
+            }
+          ]
+        },
+        {
+          "id": "cs_theory",
+          "name": "תיאוריה",
+          "topics": [
+            {
+              "id": "cs_boolean_algebra",
+              "name": "אלגברה בוליאנית"
+            },
+            {
+              "id": "cs_computer_organization",
+              "name": "ארגון המחשב"
+            },
+            {
+              "id": "cs_complexity",
+              "name": "סיבוכיות אלגוריתמים"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "civil",
+      "name": "הנדסה אזרחית",
+      "exams": [
+        {
+          "id": "civil_statics",
+          "name": "סטטיקה",
+          "topics": [
+            {
+              "id": "civil_forces",
+              "name": "כוחות ומומנטים"
+            },
+            {
+              "id": "civil_trusses",
+              "name": "מסבכים"
+            },
+            {
+              "id": "civil_beams",
+              "name": "קורות"
+            },
+            {
+              "id": "civil_stress",
+              "name": "מאמצים ועיבורים"
+            }
+          ]
+        },
+        {
+          "id": "civil_materials",
+          "name": "חומרי בניין",
+          "topics": [
+            {
+              "id": "civil_concrete",
+              "name": "בטון מזוין"
+            },
+            {
+              "id": "civil_steel",
+              "name": "פלדה"
+            },
+            {
+              "id": "civil_soil",
+              "name": "מכניקת קרקע"
+            }
+          ]
+        },
+        {
+          "id": "civil_safety",
+          "name": "בטיחות בבניה",
+          "topics": [
+            {
+              "id": "civil_safety_work",
+              "name": "בטיחות בעבודה",
+              "subtopics": []
+            },
+            {
+              "id": "civil_safety_supervision",
+              "name": "שירות פיקוח על העבודה והמוס״ל",
+              "subtopics": []
+            },
+            {
+              "id": "civil_safety_roles",
+              "name": "תפקידי בטיחות פנים מפעליים",
+              "subtopics": []
+            },
+            {
+              "id": "civil_safety_training",
+              "name": "הדרכת עובדים",
+              "subtopics": []
+            },
+            {
+              "id": "civil_safety_plans",
+              "name": "תוכניות בטיחות",
+              "subtopics": []
+            },
+            {
+              "id": "civil_safety_site_management",
+              "name": "ניהול הבטיחות באתר בניה",
+              "subtopics": []
+            },
+            {
+              "id": "civil_safety_surfaces",
+              "name": "משטחי עבודה, מדרכת מעבר ופתחים",
+              "subtopics": []
+            },
+            {
+              "id": "civil_safety_scaffolding",
+              "name": "פיגומים",
+              "subtopics": []
+            },
+            {
+              "id": "civil_safety_formwork",
+              "name": "טפסות",
+              "subtopics": []
+            },
+            {
+              "id": "civil_safety_prefab",
+              "name": "בניה טרומית",
+              "subtopics": []
+            },
+            {
+              "id": "civil_safety_metal",
+              "name": "הקמת מבנה מתכת",
+              "subtopics": []
+            },
+            {
+              "id": "civil_safety_excavation",
+              "name": "חפירות ועבודות עפר",
+              "subtopics": []
+            },
+            {
+              "id": "civil_safety_demolition",
+              "name": "הריסה וחומרי פיצוץ",
+              "subtopics": []
+            },
+            {
+              "id": "civil_safety_bitumen",
+              "name": "ביטומן חם ואש",
+              "subtopics": []
+            },
+            {
+              "id": "civil_safety_roofs",
+              "name": "גגות שבירים ותלולים",
+              "subtopics": []
+            },
+            {
+              "id": "civil_safety_height",
+              "name": "עבודה בגובה",
+              "subtopics": []
+            },
+            {
+              "id": "civil_safety_ladders",
+              "name": "סולמות",
+              "subtopics": []
+            },
+            {
+              "id": "civil_safety_lifting",
+              "name": "מכונות ואביזרי הרמה",
+              "subtopics": []
+            },
+            {
+              "id": "civil_safety_cranes",
+              "name": "עגורנים",
+              "subtopics": []
+            },
+            {
+              "id": "civil_safety_electricity",
+              "name": "חשמל",
+              "subtopics": []
+            },
+            {
+              "id": "civil_safety_confined",
+              "name": "מקום מוקף",
+              "subtopics": []
+            },
+            {
+              "id": "civil_safety_equipment",
+              "name": "מכונות שונות ציוד מכאני וכלי עבודה",
+              "subtopics": []
+            },
+            {
+              "id": "civil_safety_hygiene",
+              "name": "גיהות",
+              "subtopics": []
+            },
+            {
+              "id": "civil_safety_ppe",
+              "name": "ציוד מגן אישי",
+              "subtopics": []
+            },
+            {
+              "id": "civil_safety_welding",
+              "name": "ריתוך וחיתוך להבה",
+              "subtopics": []
+            }
+          ]
+        },
+        {
+          "id": "civil_site_management",
+          "name": "ארגון וניהול האתר",
+          "topics": [
+            {
+              "id": "civil_site_planning",
+              "name": "תכנון וארגון האתר",
+              "subtopics": [
+                {
+                  "id": "civil_site_layout",
+                  "name": "תכנון מערך האתר"
+                },
+                {
+                  "id": "civil_site_logistics",
+                  "name": "לוגיסטיקה ושינוע"
+                },
+                {
+                  "id": "civil_site_facilities",
+                  "name": "מתקנים זמניים ותשתיות"
+                }
+              ]
+            },
+            {
+              "id": "civil_site_schedule",
+              "name": "לוחות זמנים ותזמון",
+              "subtopics": [
+                {
+                  "id": "civil_site_gantt",
+                  "name": "תרשימי גאנט ורשת"
+                },
+                {
+                  "id": "civil_site_critical",
+                  "name": "נתיב קריטי"
+                },
+                {
+                  "id": "civil_site_resources",
+                  "name": "הקצאת משאבים"
+                }
+              ]
+            },
+            {
+              "id": "civil_site_budget",
+              "name": "תקציב ובקרת עלויות",
+              "subtopics": [
+                {
+                  "id": "civil_site_cost_estimate",
+                  "name": "אומדן עלויות"
+                },
+                {
+                  "id": "civil_site_cost_control",
+                  "name": "בקרת עלויות"
+                },
+                {
+                  "id": "civil_site_payments",
+                  "name": "חשבונות וחשבונות חלקיים"
+                }
+              ]
+            },
+            {
+              "id": "civil_site_quality",
+              "name": "בקרת איכות",
+              "subtopics": [
+                {
+                  "id": "civil_site_quality_plan",
+                  "name": "תכנית בקרת איכות"
+                },
+                {
+                  "id": "civil_site_testing",
+                  "name": "בדיקות ומעבדה"
+                },
+                {
+                  "id": "civil_site_documentation",
+                  "name": "תיעוד ודיווח"
+                }
+              ]
+            },
+            {
+              "id": "civil_site_contracts",
+              "name": "חוזים והתקשרויות",
+              "subtopics": [
+                {
+                  "id": "civil_site_contract_types",
+                  "name": "סוגי חוזים"
+                },
+                {
+                  "id": "civil_site_tenders",
+                  "name": "מכרזים"
+                },
+                {
+                  "id": "civil_site_subcontractors",
+                  "name": "ניהול קבלני משנה"
+                }
+              ]
+            },
+            {
+              "id": "civil_site_regulations",
+              "name": "תקנות ורגולציה",
+              "subtopics": [
+                {
+                  "id": "civil_site_permits",
+                  "name": "היתרים ורישיונות"
+                },
+                {
+                  "id": "civil_site_standards",
+                  "name": "תקנים ומפרטים"
+                },
+                {
+                  "id": "civil_site_environmental",
+                  "name": "איכות הסביבה"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+} 

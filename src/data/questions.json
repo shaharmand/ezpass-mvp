@@ -1,0 +1,24 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "subjectId": "math",
+      "examId": "bagrut4",
+      "topicId": "algebra",
+      "content": "Solve the quadratic equation: x² + 5x + 6 = 0",
+      "difficulty": 1,
+      "solution": "x = -2 or x = -3",
+      "explanation": "Using the quadratic formula or factoring:\nx² + 5x + 6 = 0\n(x + 2)(x + 3) = 0\nx = -2 or x = -3"
+    },
+    {
+      "id": "q2",
+      "subjectId": "physics",
+      "examId": "mechanics",
+      "topicId": "kinematics",
+      "content": "A car accelerates from 0 to 60 km/h in 5 seconds. What is its average acceleration?",
+      "difficulty": 2,
+      "solution": "3.33 m/s²",
+      "explanation": "First convert 60 km/h to m/s: 60 km/h = 16.67 m/s\nAcceleration = change in velocity / time\na = (16.67 - 0) / 5 = 3.33 m/s²"
+    }
+  ]
+} 
