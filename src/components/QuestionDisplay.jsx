@@ -216,6 +216,7 @@ const QuestionDisplay = forwardRef(({
     console.log('- Key type:', typeof apiKey);
     console.log('- Key starts with:', apiKey?.substring(0, 6));
     console.log('- Key length:', apiKey?.length);
+    console.log('API Key:', process.env.REACT_APP_OPENAI_API_KEY ? 'Exists' : 'Missing');
   }, []);
 
   // Detailed logging of props
