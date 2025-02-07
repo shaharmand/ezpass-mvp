@@ -6,6 +6,7 @@ import RightPanel from './components/RightPanel';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
 import '@fontsource/rubik';
+import { Analytics } from "@vercel/analytics/react"
 
 // Create rtl cache
 const cacheRtl = createCache({
