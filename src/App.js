@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Box, CssBaseline, ThemeProvider, createTheme } from '@mui/material';
+import { Box, CssBaseline, ThemeProvider, createTheme, Container } from '@mui/material';
 import TopPanel from './components/TopPanel';
 import CenterPanel from './components/CenterPanel';
 import RightPanel from './components/RightPanel';
@@ -7,11 +7,13 @@ import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
 import '@fontsource/rubik';
 import { Analytics } from "@vercel/analytics/react"
+import rtlPlugin from 'stylis-plugin-rtl';
+import { prefixer } from 'stylis';
 
 // Create rtl cache
 const cacheRtl = createCache({
   key: 'muirtl',
-  prepend: true,
+  stylisPlugins: [prefixer, rtlPlugin],
 });
 
 const theme = createTheme({
@@ -69,73 +71,84 @@ function App() {
     <CacheProvider value={cacheRtl}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <Box sx={{ 
-          display: 'flex', 
-          flexDirection: 'column',
-          height: '100vh',
-          width: '100%',
-          overflow: 'hidden'
-        }}>
-          <TopPanel
-            selectedSubject={selectedSubject}
-            setSelectedSubject={setSelectedSubject}
-            selectedExam={selectedExam}
-            setSelectedExam={setSelectedExam}
-            selectedTopic={selectedTopic}
-            setSelectedTopic={setSelectedTopic}
-            selectedSubtopic={selectedSubtopic}
-            setSelectedSubtopic={setSelectedSubtopic}
-            selectedTopics={selectedTopics}
-            setSelectedTopics={setSelectedTopics}
-            selectedSubtopics={selectedSubtopics}
-            setSelectedSubtopics={setSelectedSubtopics}
-            progress={progress}
-          />
-          
-          <Box sx={{ 
-            display: 'flex', 
-            flex: 1,
-            flexDirection: 'row',
-            width: '100%',
-            overflow: 'hidden',
-            gap: 2,
-            px: 2,
-            pt: 2
-          }}>
+        <Box
+          sx={{
+            minHeight: '100vh',
+            backgroundColor: '#f0f2f5',
+            py: 4
+          }}
+        >
+          <Container maxWidth="lg">
             <Box sx={{ 
-              flex: '0 1 65%',
-              maxWidth: '1400px',
-              minWidth: 0,
-              display: 'flex'
-            }}>
-              <CenterPanel
-                ref={questionDisplayRef}
-                setProgress={setProgress}
-                selectedSubject={selectedSubject}
-                selectedExam={selectedExam}
-                selectedTopic={selectedTopic}
-                selectedSubtopic={selectedSubtopic}
-                selectedTopics={selectedTopics}
-                selectedSubtopics={selectedSubtopics}
-                onQuestionGenerated={handleQuestionGenerated}
-                onSkipQuestion={handleSkipQuestion}
-              />
-            </Box>
-
-            <Box sx={{ 
-              flex: '1 1 35%',
-              minWidth: 0,
-              backgroundColor: '#f8f9fa',
-              borderRadius: 2,
-              border: '1px solid rgba(0, 0, 0, 0.1)',
-              overflow: 'hidden',
-              display: 'flex',
+              display: 'flex', 
               flexDirection: 'column',
+              height: '100vh',
+              width: '100%',
+              overflow: 'hidden'
             }}>
-              <RightPanel />
+              <TopPanel
+                selectedSubject={selectedSubject}
+                setSelectedSubject={setSelectedSubject}
+                selectedExam={selectedExam}
+                setSelectedExam={setSelectedExam}
+                selectedTopic={selectedTopic}
+                setSelectedTopic={setSelectedTopic}
+                selectedSubtopic={selectedSubtopic}
+                setSelectedSubtopic={setSelectedSubtopic}
+                selectedTopics={selectedTopics}
+                setSelectedTopics={setSelectedTopics}
+                selectedSubtopics={selectedSubtopics}
+                setSelectedSubtopics={setSelectedSubtopics}
+                progress={progress}
+              />
+              
+              <Box sx={{ 
+                display: 'flex', 
+                flex: 1,
+                flexDirection: 'row',
+                width: '100%',
+                overflow: 'hidden',
+                gap: 2,
+                px: 2,
+                pt: 2
+              }}>
+                <Box sx={{ 
+                  flex: '0 1 65%',
+                  maxWidth: '1400px',
+                  minWidth: 0,
+                  display: 'flex'
+                }}>
+                  <CenterPanel
+                    ref={questionDisplayRef}
+                    setProgress={setProgress}
+                    selectedSubject={selectedSubject}
+                    selectedExam={selectedExam}
+                    selectedTopic={selectedTopic}
+                    selectedSubtopic={selectedSubtopic}
+                    selectedTopics={selectedTopics}
+                    selectedSubtopics={selectedSubtopics}
+                    onQuestionGenerated={handleQuestionGenerated}
+                    onSkipQuestion={handleSkipQuestion}
+                  />
+                </Box>
+
+                <Box sx={{ 
+                  flex: '1 1 35%',
+                  minWidth: 0,
+                  backgroundColor: '#f8f9fa',
+                  borderRadius: 2,
+                  border: '1px solid rgba(0, 0, 0, 0.1)',
+                  overflow: 'hidden',
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}>
+                  <RightPanel />
+                </Box>
+              </Box>
             </Box>
-          </Box>
+          </Container>
         </Box>
+        <Analytics />
       </ThemeProvider>
     </CacheProvider>
   );
