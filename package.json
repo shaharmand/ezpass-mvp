@@ -5,6 +5,7 @@
   "dependencies": {
     "@emotion/react": "^11.0.0",
     "@emotion/styled": "^11.0.0",
+    "@fontsource/rubik": "^5.0.0",
     "@mui/material": "^5.0.0",
     "@mui/icons-material": "^5.0.0",
     "@uiw/react-textarea-code-editor": "^2.1.1",
