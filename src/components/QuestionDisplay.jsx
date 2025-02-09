@@ -4,6 +4,31 @@ import OpenAI from 'openai';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CodeEditor from '@uiw/react-textarea-code-editor';
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
+import LightbulbIcon from '@mui/icons-material/Lightbulb';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import IconButton from '@mui/material/IconButton';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import HelpIcon from '@mui/icons-material/Help';
+import Tooltip from '@mui/material/Tooltip';
+import SkipNextIcon from '@mui/icons-material/SkipNext';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import DoubleArrowIcon from '@mui/icons-material/DoubleArrow';
+import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
+import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import FastForwardIcon from '@mui/icons-material/FastForward';
+import { 
+  getQuestionExplanation, 
+  getSolutionGuide, 
+  getHint, 
+  getFullSolution,
+  getResources
+} from '../services/assistanceService';
 
 const openai = new OpenAI({
   apiKey: process.env.REACT_APP_OPENAI_API_KEY,
@@ -102,38 +127,38 @@ const QuestionContent = memo(({ question }) => {
       window.MathJax.typesetPromise?.()
         .catch((err) => console.error('MathJax typesetting failed:', err));
     }
-  }, [question]); // Re-run only when question changes
+  }, [question]);
 
   if (!question) return null;
 
   return (
     <Box sx={{ mb: 4 }}>
-      <Typography 
-        component="div" 
+      <div 
         dangerouslySetInnerHTML={{ __html: question.question.text }}
-        sx={{ 
+        style={{ 
           direction: 'rtl',
           textAlign: 'right',
           lineHeight: 1.8,
           color: '#2c3e50',
-          '& .MathJax': {
-            fontSize: '110%',
-            margin: '0 4px',
-          }
+          fontFamily: 'Rubik, Arial, sans-serif',
+          fontSize: '1.125rem',
+          fontWeight: 500,
         }}
       />
       {question.question.instruction && (
-        <Typography 
-          variant="body2" 
-          sx={{ 
-            mt: 1, 
-            color: 'text.secondary',
+        <div
+          style={{ 
+            marginTop: '16px',
+            color: 'rgba(0, 0, 0, 0.7)',
             direction: 'rtl',
-            textAlign: 'right'
+            textAlign: 'right',
+            fontFamily: 'Rubik, Arial, sans-serif',
+            fontSize: '1rem',
+            fontWeight: 400,
           }}
         >
           {question.question.instruction}
-        </Typography>
+        </div>
       )}
     </Box>
   );
@@ -146,12 +171,16 @@ const QuestionDisplay = forwardRef(({
   selectedSubtopic,
   selectedTopics,
   onQuestionGenerated,
-  onSkipQuestion
+  onSkipQuestion,
+  onQuestionSkipped,
+  onSendMessage,
+  setChatMessages
 }, ref) => {
   const [question, setQuestion] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showSolution, setShowSolution] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
 
   // Update the MathJax configuration useEffect
   useEffect(() => {
@@ -252,11 +281,11 @@ const QuestionDisplay = forwardRef(({
   }, [selectedSubject, selectedExam, selectedTopic, selectedSubtopic]);
 
   // Generate question when exam selection changes
-  useEffect(() => {
+  /*useEffect(() => {
     if (selectedExam) {
       generateQuestion();
     }
-  }, [selectedExam?.id]); // Only depend on the exam ID, not the entire callback
+  }, [selectedExam?.id]);*/
 
   // Add a new useEffect for MathJax rendering
   useEffect(() => {
@@ -285,10 +314,12 @@ const QuestionDisplay = forwardRef(({
         sx={{ 
           direction: 'rtl',
           textAlign: 'right',
-          lineHeight: 1.8,
+          lineHeight: 1.6,
           color: '#2c3e50',
+          fontSize: '18px',  // Increased font size
+          fontFamily: 'Rubik, Arial, sans-serif',
           '& .MathJax': {
-            fontSize: '110%',
+            fontSize: '120%',  // Slightly larger math
             margin: '0 4px',
           }
         }}
@@ -296,26 +327,29 @@ const QuestionDisplay = forwardRef(({
     );
   };
 
-  const getRandomTopic = () => {
-    console.log('Available topics:', selectedTopics); // Debug log
+  const getRandomTopic = (topics, exam) => {
+    // Filter out any undefined or invalid topics
+    const validTopics = (topics || []).filter(Boolean);
     
-    if (!selectedTopics?.length) {
+    if (!validTopics?.length) {
       return 'general topic';
     }
     
-    // Get a random topic ID from selectedTopics
-    const randomIndex = Math.floor(Math.random() * selectedTopics.length);
-    const randomTopicId = selectedTopics[randomIndex];
+    const randomIndex = Math.floor(Math.random() * validTopics.length);
+    const randomTopicId = validTopics[randomIndex];
     
-    // Find the topic object in currentExam.topics
-    const topicObject = selectedExam?.topics?.find(t => t.id === randomTopicId);
+    // Find the topic object in exam.topics
+    const topicObject = exam?.topics?.find(t => t.id === randomTopicId);
     
-    // Return the topic name instead of ID
     return topicObject?.name || 'general topic';
   };
 
-  const generateQuestion = async (retryCount = 0) => {
-    if (!selectedExam) return;
+  const generateQuestion = async (newSelections = null, retryCount = 0) => {
+    if (!selectedExam && !newSelections?.exam) return;
+    
+    // Use new selections if provided, otherwise use current state
+    const currentExam = newSelections?.exam || selectedExam;
+    const currentTopics = newSelections?.topics || selectedTopics;
     
     // Don't retry more than 3 times
     if (retryCount > 3) {
@@ -328,7 +362,7 @@ const QuestionDisplay = forwardRef(({
     setError(null);
     setShowSolution(false);
     try {
-      const topic = getRandomTopic();
+      const topic = getRandomTopic(currentTopics, currentExam);
       
       // Determine question type based on subject
       let questionType;
@@ -347,7 +381,7 @@ const QuestionDisplay = forwardRef(({
           questionType = Math.random() < 0.5 ? 'multiple_choice' : 'essay';
       }
 
-      const prompt = `Create a ${selectedSubject?.name}, ${selectedExam.name} exam question in Hebrew about ${topic}.
+      const prompt = `Create a ${selectedSubject?.name}, ${currentExam.name} exam question in Hebrew about ${topic}.
         
       Question requirements:
       - Question type: "${questionType}"
@@ -372,7 +406,7 @@ const QuestionDisplay = forwardRef(({
 
       console.log('=== Question Generation Request ===');
       console.log('Subject:', selectedSubject?.name);
-      console.log('Exam:', selectedExam?.name);
+      console.log('Exam:', currentExam?.name);
       console.log('Topic:', topic);
       console.log('Type:', questionType);
 
@@ -381,7 +415,7 @@ const QuestionDisplay = forwardRef(({
         messages: [
           {
             role: "system",
-            content: `You are a professional ${selectedSubject?.name} teacher with extensive experience preparing students for ${selectedExam?.name} exams and creating exam questions.
+            content: `You are a professional ${selectedSubject?.name} teacher with extensive experience preparing students for ${currentExam?.name} exams and creating exam questions.
             
             CRITICAL: All LaTeX expressions MUST be double-escaped in JSON:
             CORRECT: "נתון משולש שבו \\\\( \\\\alpha = 30^\\\\circ \\\\)"
@@ -427,28 +461,142 @@ const QuestionDisplay = forwardRef(({
       console.error('Error in question generation:', error);
       if (retryCount < 3) {
         console.log(`Retrying question generation... (Attempt ${retryCount + 1}/3)`);
-        return generateQuestion(retryCount + 1);
+        return generateQuestion(newSelections, retryCount + 1);
       }
       setError('אירעה שגיאה ביצירת השאלה. אנא נסה שוב.');
       setLoading(false);
     }
   };
 
-  const handleSkipQuestion = () => {
-    // Reset states
-    setQuestion(null);
-    setShowSolution(false);
-    setError(null);
-    
-    // Call parent callback to reset answer and feedback BEFORE generating new question
+  const handleSkip = () => {
     if (onSkipQuestion) {
       onSkipQuestion();
     }
+    // Call onQuestionSkipped after skip is processed
+    if (onQuestionSkipped) {
+      onQuestionSkipped();
+    }
+  };
 
-    // Small delay before generating new question to allow fade out
-    setTimeout(() => {
-      generateQuestion();
-    }, 300);
+  const handleHelpClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleHelpClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleHelpAction = (action) => {
+    setAnchorEl(null);
+    
+    const subject = selectedSubject?.name || '';
+    const exam = selectedExam?.name || '';
+    const topic = selectedTopic?.name || '';
+    
+    switch (action) {
+      case 'resources':
+        onSendMessage({
+          type: 'assistant',
+          content: `<strong>📚 חומרי עזר מומלצים:</strong>
+
+אני שמח להמליץ על חומרי העזר הבאים ל${topic || exam}:
+
+1. סרטוני הסבר:
+   • שיעור מקיף בנושא ${topic || exam}
+   • תרגול מודרך עם פתרונות מלאים
+
+2. מסמכים וסיכומים:
+   • דף נוסחאות מרוכז
+   • סיכום תיאוריה ומושגים מרכזיים
+   • מאגר שאלות ופתרונות
+
+3. קישורים שימושיים:
+   • מחשבון גרפי אונליין
+   • סימולטור לתרגול אינטראקטיבי
+
+אשמח להפנות אותך לחומר ספציפי שמעניין אותך.`
+        });
+        break;
+
+      case 'explanation':
+        onSendMessage({
+          type: 'assistant',
+          content: `<strong>❓ הסבר השאלה:</strong>
+
+בשאלה זו אנחנו נדרשים להבין מספר מושגים מרכזיים ב${topic || exam}:
+
+1. ראשית, חשוב לזהות את הנתונים המרכזיים
+2. שימו לב לדרישות השאלה - מה בדיוק מבקשים מכם
+3. זכרו את העקרונות הבאים שלמדנו:
+   • נקודה ראשונה חשובה
+   • נקודה שנייה חשובה
+   • נקודה שלישית חשובה
+
+האם תרצו שנעבור יחד על השאלה צעד אחר צעד?`
+        });
+        break;
+
+      case 'guide':
+        onSendMessage({
+          type: 'assistant',
+          content: `<strong>📝 הדרכה לפתרון:</strong>
+
+הנה מדריך מובנה שיעזור לכם לפתור את השאלה:
+
+1. שלב ראשון: זיהוי הנתונים
+   • רשמו את כל הנתונים שקיבלתם
+   • ארגנו אותם בצורה ברורה
+
+2. שלב שני: תכנון הפתרון
+   • חשבו על הנוסחאות הרלוונטיות
+   • בחרו את דרך הפתרון המתאימה
+
+3. שלב שלישי: ביצוע
+   • פתרו שלב אחר שלב
+   • בדקו כל שלב בפתרון
+
+נסו לפתור לפי השלבים האלו ואני כאן אם תצטרכו עזרה נוספת.`
+        });
+        break;
+
+      case 'hint':
+        onSendMessage({
+          type: 'assistant',
+          content: `<strong>💡 רמז לפתרון:</strong>
+
+הנה רמז שיכול לעזור:
+          
+חשבו על הקשר בין הנתונים שקיבלתם. האם שמתם לב ל[נתון מרכזי]? 
+זה יכול להוביל אתכם לפתרון.
+
+נסו לחשוב על זה ואם תצטרכו, אשמח לתת רמז נוסף.`
+        });
+        break;
+
+      case 'solution':
+        onSendMessage({
+          type: 'assistant',
+          content: `<strong>✅ פתרון מלא:</strong>
+
+הנה פתרון מפורט לשאלה:
+
+1. ניתוח הנתונים:
+   • [נתון ראשון]
+   • [נתון שני]
+   • [נתון שלישי]
+
+2. דרך הפתרון:
+   • שלב א': [הסבר]
+   • שלב ב': [הסבר]
+   • שלב ג': [הסבר]
+
+3. התשובה הסופית:
+   [תשובה]
+
+שימו לב: חשוב להבין כל שלב בפתרון ולא רק להעתיק את התשובה.`
+        });
+        break;
+    }
   };
 
   // Expose generateQuestion method through ref
@@ -464,8 +612,12 @@ const QuestionDisplay = forwardRef(({
   if (!selectedExam) {
     return (
       <Paper 
+        dir="rtl"
         sx={{ 
           p: 4, 
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
           textAlign: 'center',
           backgroundColor: '#f8f9fa',
           borderRadius: 2,
@@ -473,28 +625,85 @@ const QuestionDisplay = forwardRef(({
           boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
         }}
       >
-        <Typography 
-          variant="h5" 
-          sx={{ 
-            fontWeight: 'bold',
-            color: '#2c3e50',
-            mb: 1
-          }}
-        >
-          בחר מבחן כדי להתחיל
-        </Typography>
-        <Typography color="text.secondary">
-          יש לבחור מקצוע לאחר מכן בחינה מהתפריטים בחלק העליון של המסך.
-        </Typography>
-        <Typography color="text.secondary" sx={{ mt: 1 }}>
-          ניתן גם לבחור נושאים ותתי נושאים מהתפריטים הנוספים שיופיעו לאחר בחירת הבחינה
-        </Typography>
+        <div style={{
+          color: '#2c3e50',
+          fontSize: '1.25rem',
+          fontFamily: 'Rubik, Arial, sans-serif',
+          direction: 'rtl',
+          textAlign: 'center'
+        }}>
+          כדי להתחיל לתרגל, הגדר את המבחן שלך בעזרת כפתור "הגדרות מבחן" למעלה 👆
+        </div>
       </Paper>
     );
   }
 
   return (
-    <>
+    <Box sx={{ 
+      width: '100%',
+      p: 2,
+      backgroundColor: '#f8f9fa',
+      borderRadius: 2,
+      border: '1px solid rgba(0, 0, 0, 0.1)',
+      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05), 0 10px 20px rgba(0, 0, 0, 0.05)',
+      mb: 0.25, // Reduce to 2px
+    }}>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        marginBottom: '8px',
+        paddingBottom: '4px',
+        paddingLeft: '16px',
+        paddingRight: '16px',
+        borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
+        direction: 'rtl'
+      }}>
+        <div
+          style={{
+            fontWeight: 'bold',
+            color: '#2c3e50',
+            flexGrow: 1,
+            direction: 'rtl',
+            textAlign: 'right',
+            fontSize: '1.5rem',
+            fontFamily: 'Rubik, Arial, sans-serif'
+          }}
+        >
+          שאלה
+        </div>
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <Tooltip title="אפשרויות עזרה" placement="bottom">
+            <IconButton
+              onClick={handleHelpClick}
+              size="small"
+              sx={{ 
+                color: 'primary.main',
+                '&:hover': {
+                  backgroundColor: 'rgba(25, 118, 210, 0.04)'
+                }
+              }}
+            >
+              <HelpIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="דלג על שאלה זו" placement="bottom">
+            <IconButton
+              onClick={handleSkip}
+              size="small"
+              sx={{ 
+                color: 'primary.main',
+                '&:hover': {
+                  backgroundColor: 'rgba(25, 118, 210, 0.04)'
+                },
+                transform: 'rotate(180deg)'
+              }}
+            >
+              <FastForwardIcon />
+            </IconButton>
+          </Tooltip>
+        </Box>
+      </div>
+      
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
@@ -507,66 +716,114 @@ const QuestionDisplay = forwardRef(({
         <Paper 
           elevation={0}
           sx={{ 
-            p: 3,
+            p: 0.5,
             backgroundColor: '#f8f9fa',
             borderRadius: 2,
-            border: '1px solid rgba(0, 0, 0, 0.1)'
+            '& > .MuiBox-root': {
+              p: 0,
+              m: 0
+            }
           }}
         >
-          <Box sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 2,
-            mb: 3,
-            pb: 2,
-            borderBottom: '1px solid rgba(0, 0, 0, 0.1)'
-          }}>
-            <Typography 
-              variant="h5" 
-              sx={{ 
-                fontWeight: 'bold',
-                color: '#2c3e50',
-                flexGrow: 1,
-                textAlign: 'right'
+          <Box sx={{ width: '100%' }}>
+            {/* Question Content */}
+            <Box sx={{ 
+              backgroundColor: '#f8f9fa',
+              borderRadius: 1,
+              '& > *:last-child': {
+                mb: 0
+              }
+            }}>
+              {renderQuestion()}
+            </Box>
+
+            {/* Help Menu */}
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleHelpClose}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'right',
               }}
-            >
-              שאלה
-            </Typography>
-          </Box>
-          {renderQuestion()}
-          <Box sx={{ 
-            display: 'flex',
-            justifyContent: 'flex-end',
-            mt: 3,
-            pt: 2,
-            borderTop: '1px solid rgba(0, 0, 0, 0.1)'
-          }}>
-            <Button
-              variant="outlined"
-              onClick={handleSkipQuestion}
-              disabled={loading}
-              endIcon={<SkipPreviousIcon />}
-              sx={{ 
-                minWidth: 120,
-                color: '#1976d2',
-                borderColor: '#1976d2',
-                padding: '6px 10px',
-                '& .MuiButton-endIcon': {
-                  margin: 0,
-                  marginRight: '2px',
-                },
-                '&:hover': {
-                  borderColor: '#1565c0',
-                  backgroundColor: 'rgba(25, 118, 210, 0.04)'
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              PaperProps={{
+                elevation: 3,
+                sx: {
+                  mt: 1,
+                  '& .MuiMenuItem-root': {
+                    color: 'primary.main',
+                    '&:hover': {
+                      backgroundColor: 'rgba(25, 118, 210, 0.04)',
+                    },
+                  }
                 }
               }}
             >
-              דלג
-            </Button>
+              <MenuItem onClick={() => handleHelpAction('explanation')}>
+                <ListItemIcon>
+                  <HelpOutlineIcon fontSize="small" sx={{ color: 'primary.main' }} />
+                </ListItemIcon>
+                <ListItemText 
+                  primary="הסבר שאלה"
+                  primaryTypographyProps={{
+                    sx: { color: 'primary.main' }
+                  }}
+                />
+              </MenuItem>
+              <MenuItem onClick={() => handleHelpAction('guide')}>
+                <ListItemIcon>
+                  <MenuBookIcon fontSize="small" sx={{ color: 'primary.main' }} />
+                </ListItemIcon>
+                <ListItemText 
+                  primary="הדרכה לפתרון"
+                  primaryTypographyProps={{
+                    sx: { color: 'primary.main' }
+                  }}
+                />
+              </MenuItem>
+              <MenuItem onClick={() => handleHelpAction('hint')}>
+                <ListItemIcon>
+                  <LightbulbIcon fontSize="small" sx={{ color: 'primary.main' }} />
+                </ListItemIcon>
+                <ListItemText 
+                  primary="רמז"
+                  primaryTypographyProps={{
+                    sx: { color: 'primary.main' }
+                  }}
+                />
+              </MenuItem>
+              <MenuItem onClick={() => handleHelpAction('solution')}>
+                <ListItemIcon>
+                  <CheckCircleOutlineIcon fontSize="small" sx={{ color: 'primary.main' }} />
+                </ListItemIcon>
+                <ListItemText 
+                  primary="פתרון מלא"
+                  primaryTypographyProps={{
+                    sx: { color: 'primary.main' }
+                  }}
+                />
+              </MenuItem>
+              <Divider sx={{ my: 1 }} />
+              <MenuItem onClick={() => handleHelpAction('resources')}>
+                <ListItemIcon>
+                  <LibraryBooksIcon fontSize="small" sx={{ color: 'primary.main' }} />
+                </ListItemIcon>
+                <ListItemText 
+                  primary="חומר עזר"
+                  primaryTypographyProps={{
+                    sx: { color: 'primary.main' }
+                  }}
+                />
+              </MenuItem>
+            </Menu>
           </Box>
         </Paper>
       )}
-    </>
+    </Box>
   );
 });
 

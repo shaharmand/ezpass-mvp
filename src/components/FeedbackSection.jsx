@@ -1,201 +1,118 @@
-import React, { useEffect, useState } from 'react';
-import { Paper, Typography, Box, Button, Divider, CircularProgress, Fade, Grow, Skeleton, LinearProgress, Collapse } from '@mui/material';
-import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
+import React, { useEffect, useState, useMemo } from 'react';
+import { 
+  Paper, 
+  Box, 
+  Button, 
+  Divider, 
+  CircularProgress, 
+  Fade, 
+  Typography,
+  Stack
+} from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import StarIcon from '@mui/icons-material/Star';
-import ErrorIcon from '@mui/icons-material/Error';
-import RefreshIcon from '@mui/icons-material/Refresh';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import CancelIcon from '@mui/icons-material/Cancel';
+import InfoIcon from '@mui/icons-material/Info';
 import ReplayIcon from '@mui/icons-material/Replay';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import Collapse from '@mui/material/Collapse';
+import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
+import SkipNextIcon from '@mui/icons-material/SkipNext';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
 
 const FeedbackLoadingAnimation = () => (
-  <>
-    <Box sx={{ 
-      display: 'flex', 
-      flexDirection: 'column',
-      alignItems: 'center',
-      mb: 3
-    }}>
-      <CircularProgress 
-        size={40} 
-        thickness={4} 
-        sx={{ mb: 2 }}
-      />
-      <Typography 
-        variant="body1" 
-        sx={{ 
-          color: '#1976d2',
-          fontWeight: 500,
-          mb: 1,
-          direction: 'rtl'
-        }}
-      >
-        בודק את התשובה שלך...
-      </Typography>
-      <Box 
-        sx={{ 
-          width: '100%', 
-          mt: 2,
-          display: 'flex',
-          justifyContent: 'center'
-        }}
-      >
-        <Grow in={true} timeout={800}>
-          <Box sx={{ 
-            width: '60%', 
-            height: 4, 
-            backgroundColor: '#e3f2fd',
-            borderRadius: 2,
-            position: 'relative',
-            overflow: 'hidden',
-            '&::after': {
-              content: '""',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '30%',
-              height: '100%',
-              backgroundColor: '#1976d2',
-              animation: 'loading 1.5s infinite',
-              borderRadius: 2,
-            },
-            '@keyframes loading': {
-              '0%': {
-                left: '-30%',
-              },
-              '100%': {
-                left: '100%',
-              },
-            },
-          }} />
-        </Grow>
-      </Box>
-    </Box>
-  </>
+  <Box sx={{ 
+    display: 'flex', 
+    flexDirection: 'column',
+    alignItems: 'center',
+    mb: 3
+  }}>
+    <CircularProgress size={40} thickness={4} sx={{ mb: 2 }} />
+    <Typography
+      sx={{
+        color: 'primary.main',
+        fontWeight: 500,
+        mb: 1,
+        direction: 'rtl',
+        fontFamily: 'Rubik, Arial, sans-serif'
+      }}
+    >
+      בודק את התשובה שלך...
+    </Typography>
+  </Box>
 );
 
-function FeedbackSection({ feedback, question, isProcessing, onNextQuestion, onRetry }) {
+function FeedbackSection({ 
+  question,
+  feedback,
+  isCorrect,
+  onRetry,
+  onNextQuestion
+}) {
+  const [isProcessing, setIsProcessing] = useState(false);
   const [showSolution, setShowSolution] = useState(false);
 
-  // Add MathJax typesetting after content updates
+  // Add useEffect for MathJax rendering
   useEffect(() => {
-    const processMathJax = async () => {
-      if (window.MathJax && feedback) {
-        try {
-          // Clear previous equations
-          window.MathJax.typesetClear();
-          
-          // Wait for DOM to update
-          await new Promise(resolve => setTimeout(resolve, 0));
-          
-          // Process new equations
-          await window.MathJax.typesetPromise();
-        } catch (err) {
-          console.error('MathJax processing error:', err);
-        }
-      }
-    };
+    if (window.MathJax && (feedback?.analysis || showSolution)) {
+      window.MathJax.typesetPromise?.()
+        .catch((err) => console.error('MathJax typesetting failed:', err));
+    }
+  }, [feedback, showSolution]); // Re-run when feedback or solution changes
 
-    processMathJax();
-  }, [feedback]);
+  // Add this console log to check the full question object
+  useEffect(() => {
+    console.log('Full question object:', question);
+    console.log('Question Type:', question?.question?.type);  // Changed to access question.question.type
+    console.log('Is Multiple Choice:', question?.question?.type === 'multiple_choice');
+  }, [question]);
 
-  const renderMathText = (text) => {
-    if (!text) return null;
-    
-    // Split by \n and process each line separately
-    const lines = text.split('\\n');
-    
-    return (
-      <Box 
-        component="div" 
-        sx={{ 
-          direction: 'rtl',
-          textAlign: 'right',
-          lineHeight: 1.8,
-          '& .MathJax': {
-            fontSize: '110%',
-            margin: '0 4px',
-            display: 'inline-block',
-            verticalAlign: 'middle',
-            maxWidth: '100%',
-            overflowX: 'auto',
-            overflowY: 'hidden',
-            '& mjx-container': {
-              minWidth: '0 !important',
-              maxWidth: '100%',
-              overflowWrap: 'break-word',
-              wordWrap: 'break-word',
-              wordBreak: 'break-word'
-            }
-          }
-        }}
-      >
-        {lines.map((line, index) => {
-          const formattedLine = line
-            .replace(/([^\\])\\\(/g, '$1 \\(')
-            .replace(/\\\)([^,\.\s])/g, '\\) $1')
-            .replace(/\s*([,\.])\s*/g, '$1 ')
-            .replace(/\s+/g, ' ')
-            .trim();
+  // Add console log to check isCorrect value
+  useEffect(() => {
+    console.log('isCorrect:', isCorrect);
+    console.log('feedback:', feedback);
+  }, [isCorrect, feedback]);
 
-          return (
-            <Typography 
-              key={index} 
-              className="tex2jax_process" 
-              component="div"
-              sx={{
-                overflowWrap: 'break-word',
-                wordWrap: 'break-word',
-                wordBreak: 'break-word',
-                whiteSpace: 'pre-wrap',
-                mb: index < lines.length - 1 ? 1 : 0
-              }}
-            >
-              {formattedLine}
-            </Typography>
-          );
-        })}
-      </Box>
-    );
+  // Make sure isCorrect is properly derived from feedback
+  const isCorrectMemo = useMemo(() => {
+    if (!feedback?.assessment) return false;
+    if (question?.question?.type === 'multiple_choice') {
+      return feedback.assessment.is_correct;
+    }
+    return feedback.assessment.correctness_percentage >= 80;
+  }, [feedback, question]);
+
+  // Helper function for color based on score
+  const getColorByScore = (score) => {
+    if (score >= 80) return '#2e7d32';  // Green
+    if (score >= 55) return '#ed6c02';  // Orange
+    return '#d32f2f';  // Red
   };
 
-  const SectionTitle = ({ title }) => (
-    <Typography variant="subtitle1" sx={{ 
-      fontWeight: 'bold',
-      color: '#2c3e50',
-      textAlign: 'right',
-      mb: 1,
-      width: '100%'
-    }}>
-      {title}
-    </Typography>
-  );
-
-  const getAssessmentText = (percentage) => {
-    if (percentage === 100) return 'מצוין!';
-    if (percentage >= 90) return 'כמעט מושלם!';
-    if (percentage >= 80) return 'טוב מאוד!';
-    if (percentage >= 70) return 'טוב!';
-    if (percentage >= 55) return 'עבר';
-    return 'נכשל';
+  // Get the current color based on question type and score
+  const getCurrentColor = () => {
+    if (question?.question?.type === 'multiple_choice') {
+      return feedback?.assessment?.correctness_percentage === 100 ? '#2e7d32' : '#d32f2f';  // Green for 100, Red for 0
+    }
+    // For other question types
+    const score = feedback?.assessment?.correctness_percentage || 0;
+    if (score >= 80) return '#2e7d32';  // Green
+    if (score >= 55) return '#ed6c02';  // Orange
+    return '#d32f2f';  // Red
   };
 
-  const getAssessmentColor = (percentage) => {
-    if (percentage >= 80) return 'success.main';
-    if (percentage >= 55) return 'warning.main';
-    return 'error.main';
-  };
+  // Auto-expand solution for multiple choice questions
+  useEffect(() => {
+    if (question?.question?.type === 'multiple_choice') {
+      setShowSolution(true);
+    }
+  }, [question]);
 
-  // Return null if we're not processing and have no feedback
-  if (!isProcessing && !feedback) return null;
-
-  // Special rendering for multiple choice questions
-  if (question?.question.type === 'multiple_choice') {
-    const isCorrect = feedback.assessment.correctness_percentage === 100;
-
+  if (isProcessing) {
     return (
       <Fade in={true}>
         <Paper 
@@ -204,328 +121,519 @@ function FeedbackSection({ feedback, question, isProcessing, onNextQuestion, onR
             p: 4,
             backgroundColor: '#f8f9fa',
             borderRadius: 2,
-            border: '1px solid rgba(0, 0, 0, 0.1)',
-            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05), 0 10px 20px rgba(0, 0, 0, 0.05)',
-            direction: 'rtl'
+            border: '1px solid rgba(0, 0, 0, 0.1)'
           }}
         >
-          {isProcessing ? (
-            <FeedbackLoadingAnimation />
-          ) : (
-            <>
-              {/* Assessment Result */}
-              <Box sx={{ 
-                mb: 4,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 2
-              }}>
-                {isCorrect ? (
-                  <CheckCircleIcon sx={{ color: 'success.main', fontSize: 40 }} />
-                ) : (
-                  <ErrorIcon sx={{ color: 'error.main', fontSize: 40 }} />
-                )}
-                <Typography variant="h5" sx={{ color: isCorrect ? 'success.main' : 'error.main' }}>
-                  {isCorrect ? 'תשובה נכונה!' : 'תשובה שגויה'}
-                </Typography>
-              </Box>
-
-              {/* Solution */}
-              <Box sx={{ 
-                mb: 4,
-                backgroundColor: '#f5f7fa',
-                border: '1px solid #e0e0e0',
-                borderRadius: 2,
-                p: 3
-              }}>
-                <Typography variant="h6" sx={{ mb: 2, color: '#2c3e50', fontWeight: 'bold' }}>
-                  התשובה הנכונה: {renderMathText(question.solution.final_answer)}
-                </Typography>
-                <Typography sx={{ color: '#2c3e50' }}>
-                  {renderMathText(question.solution.explanation)}
-                </Typography>
-              </Box>
-
-              {/* Action Buttons */}
-              <Box sx={{ 
-                display: 'flex', 
-                justifyContent: 'space-between',
-                mt: 3 
-              }}>
-                <Button
-                  variant="outlined"
-                  sx={{ 
-                    minWidth: 120,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 1
-                  }}
-                  onClick={onRetry}
-                >
-                  נסה שוב
-                  <ReplayIcon />
-                </Button>
-                <Button
-                  variant="contained"
-                  sx={{ 
-                    minWidth: 120,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 1
-                  }}
-                  onClick={onNextQuestion}
-                >
-                  שאלה הבאה
-                  <ArrowBackIcon />
-                </Button>
-              </Box>
-            </>
-          )}
+          <FeedbackLoadingAnimation />
         </Paper>
       </Fade>
     );
   }
 
-  // Original feedback rendering for other question types
+  if (!feedback || !feedback.assessment) {
+    return null;
+  }
+
+  const isLowScore = feedback.assessment.correctness_percentage < 50;
+
   return (
     <Fade in={true}>
       <Paper 
         elevation={0}
         sx={{ 
-          p: 4,
+          p: 3,
           backgroundColor: '#f8f9fa',
           borderRadius: 2,
           border: '1px solid rgba(0, 0, 0, 0.1)',
-          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05), 0 10px 20px rgba(0, 0, 0, 0.05)',
-          direction: 'rtl'
+          boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
         }}
       >
-        <Box sx={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 2,
+        {/* Header with Assessment - matching answer input header style */}
+        <Box sx={{ 
           mb: 3,
           pb: 2,
-          borderBottom: '1px solid rgba(0, 0, 0, 0.1)'
+          borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
+          width: '100%',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
         }}>
-          <Typography 
-            variant="h5" 
-            sx={{ 
-              fontWeight: 'bold',
-              color: '#2c3e50',
-              flexGrow: 1,
-              textAlign: 'right'
-            }}
-          >
-            משוב
-          </Typography>
-        </Box>
-
-        {isProcessing ? (
-          <FeedbackLoadingAnimation />
-        ) : (
-          <>
-            {/* Assessment Score */}
-            <Box sx={{ 
-              mb: 4,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 3
-            }}>
-              <Box sx={{ 
-                width: '4px',
-                height: '40px',
-                backgroundColor: getAssessmentColor(feedback.assessment.correctness_percentage),
-                borderRadius: '2px'
-              }} />
-              
-              <Box sx={{ 
+          {/* Assessment Text */}
+          <Box sx={{ 
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            <Typography 
+              variant="h6" 
+              sx={{ 
+                fontFamily: 'Rubik, Arial, sans-serif',
+                color: getCurrentColor(),
+                margin: 0,
                 display: 'flex',
                 alignItems: 'center',
-                gap: 2
-              }}>
-                <Typography 
-                  variant="h4" 
-                  sx={{ 
-                    color: getAssessmentColor(feedback.assessment.correctness_percentage),
-                    fontWeight: 'bold'
-                  }}
-                >
-                  {feedback.assessment.correctness_percentage}%
-                </Typography>
+                gap: '8px',
+                fontWeight: 600,
+                fontSize: '1.5rem'
+              }}
+            >
+              {question?.question?.type === 'multiple_choice' ? (
+                // Multiple Choice - Show צדקת/טעית based on 100/0
+                feedback?.assessment?.correctness_percentage === 100 ? (
+                  <>
+                    <CheckCircleIcon sx={{ fontSize: '1.5rem' }} />
+                    צדקת
+                  </>
+                ) : (
+                  <>
+                    <CancelIcon sx={{ fontSize: '1.5rem' }} />
+                    טעית
+                  </>
+                )
+              ) : (
+                // Other question types - Show icon before text
+                (() => {
+                  const score = feedback.assessment.correctness_percentage;
+                  return (
+                    <>
+                      {score >= 55 ? (
+                        score >= 80 ? (
+                          <CheckCircleIcon sx={{ fontSize: '1.5rem', color: '#2e7d32' }} />
+                        ) : (
+                          <CheckCircleIcon sx={{ fontSize: '1.5rem', color: '#ed6c02' }} />
+                        )
+                      ) : (
+                        <CancelIcon sx={{ fontSize: '1.5rem', color: '#d32f2f' }} />
+                      )}
+                      {score >= 95 ? 'מצוין!' : 
+                       score >= 80 ? 'טוב מאוד!' :
+                       score >= 70 ? 'טוב' :
+                       score >= 60 ? 'בסדר' :
+                       score >= 55 ? 'עברת' :
+                       'צריך שיפור'}
+                    </>
+                  );
+                })()
+              )}
+            </Typography>
+            {/* Show percentage only for non-multiple-choice questions */}
+            {question?.question?.type !== 'multiple_choice' && (  // Fixed type check
+              <Typography 
+                component="span"
+                sx={{ 
+                  fontSize: '1.5rem',
+                  color: getColorByScore(feedback?.assessment?.correctness_percentage || 0),
+                  fontWeight: 600
+                }}
+              >
+                {feedback?.assessment?.correctness_percentage}%
+              </Typography>
+            )}
+          </Box>
 
-                <Typography 
-                  variant="h6" 
-                  sx={{ 
-                    color: getAssessmentColor(feedback.assessment.correctness_percentage),
-                    fontWeight: 'bold'
+          {/* Action Icons */}
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Tooltip title="נסה שוב" placement="bottom">
+              <IconButton
+                onClick={onRetry}
+                size="small"
+                sx={{ 
+                  color: '#1976d2',
+                  '&:hover': {
+                    backgroundColor: 'rgba(25, 118, 210, 0.04)'
+                  }
+                }}
+              >
+                <ReplayIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="שאלה הבאה" placement="bottom">
+              <IconButton
+                onClick={onNextQuestion}
+                size="small"
+                sx={{ 
+                  color: '#1976d2',
+                  '&:hover': {
+                    backgroundColor: 'rgba(25, 118, 210, 0.04)'
+                  }
+                }}
+              >
+                <NavigateNextIcon sx={{ transform: 'rotate(180deg)' }} />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        </Box>
+
+        {/* Feedback Content */}
+        {question?.question?.type !== 'multiple_choice' && feedback?.analysis && (
+          <Box sx={{ 
+            mb: 3,
+            '& > *:last-child': {
+              mb: 0
+            }
+          }}>
+            {/* Feedback sections with consistent styling */}
+            {feedback.analysis.correct_parts && (
+              <Box sx={{ mb: 3 }}>
+                <Typography
+                  sx={{
+                    fontWeight: 600,
+                    fontSize: '1rem',
+                    mb: 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    color: '#000000'
                   }}
                 >
-                  {getAssessmentText(feedback.assessment.correctness_percentage)}
+                  <CheckCircleIcon sx={{ fontSize: '1.2rem', color: '#2e7d32' }} />
+                  נכון
                 </Typography>
+                <div 
+                  style={{ 
+                    direction: 'rtl',
+                    textAlign: 'right',
+                    color: '#2c3e50',
+                    fontFamily: 'Rubik, Arial, sans-serif',
+                    fontSize: '1rem',
+                    lineHeight: '1.6'
+                  }}
+                  dangerouslySetInnerHTML={{ 
+                    __html: feedback.analysis.correct_parts
+                  }}
+                />
               </Box>
-            </Box>
+            )}
 
-            <Divider sx={{ mb: 4 }} />
+            {/* Similar styling for mistakes and guidance sections */}
+            {feedback.analysis.mistakes && (
+              <Box sx={{ mb: 3 }}>
+                <Typography
+                  sx={{
+                    fontWeight: 600,
+                    fontSize: '1rem',
+                    mb: 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    color: '#000000'
+                  }}
+                >
+                  <CancelIcon sx={{ fontSize: '1.2rem', color: '#d32f2f' }} />
+                  שגוי
+                </Typography>
+                <div 
+                  style={{ 
+                    direction: 'rtl',
+                    textAlign: 'right',
+                    color: '#2c3e50',
+                    fontFamily: 'Rubik, Arial, sans-serif',
+                    fontSize: '1rem',
+                    lineHeight: '1.6'
+                  }}
+                  dangerouslySetInnerHTML={{ 
+                    __html: feedback.analysis.mistakes
+                  }}
+                />
+              </Box>
+            )}
 
-            {/* Analysis Section */}
-            <Box sx={{ mb: 4 }}>
-              <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2, color: '#2c3e50' }}>
-                נכון
-              </Typography>
-              <Typography component="div" sx={{ color: '#2c3e50', lineHeight: 1.8, mb: 3 }}>
-                {renderMathText(feedback.analysis.correct_parts)}
-              </Typography>
+            {feedback.analysis.guidance && (
+              <Box sx={{ mb: 3 }}>
+                <Typography
+                  sx={{
+                    fontWeight: 600,
+                    fontSize: '1rem',
+                    mb: 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    color: '#000000'
+                  }}
+                >
+                  <AutoFixHighIcon sx={{ fontSize: '1.2rem', color: '#1976d2' }} />
+                  שיפור
+                </Typography>
+                <div 
+                  style={{ 
+                    direction: 'rtl',
+                    textAlign: 'right',
+                    color: '#2c3e50',
+                    fontFamily: 'Rubik, Arial, sans-serif',
+                    fontSize: '1rem',
+                    lineHeight: '1.6'
+                  }}
+                  dangerouslySetInnerHTML={{ 
+                    __html: feedback.analysis.guidance
+                  }}
+                />
+              </Box>
+            )}
+          </Box>
+        )}
 
-              <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2, color: '#2c3e50' }}>
-                שגוי
-              </Typography>
-              <Typography component="div" sx={{ color: '#2c3e50', lineHeight: 1.8, mb: 3 }}>
-                {renderMathText(feedback.analysis.mistakes)}
-              </Typography>
-
-              <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2, color: '#2c3e50' }}>
-                שיפור
-              </Typography>
-              <Typography component="div" sx={{ color: '#2c3e50', lineHeight: 1.8 }}>
-                {renderMathText(feedback.analysis.guidance)}
-              </Typography>
-            </Box>
-
-            {/* Solution Toggle Button */}
-            {question?.solution && (
+        {/* Solution Section */}
+        {question?.solution && (
+          <Box sx={{ 
+            mt: question?.question?.type === 'multiple_choice' ? 0 : 3
+          }}>
+            {question?.question?.type === 'multiple_choice' ? (
+              // Multiple choice explanation with light blue background and nice border
+              <Box sx={{ 
+                backgroundColor: '#f0f7ff',
+                borderRadius: '8px',
+                p: 3,
+                border: '1px solid rgba(25, 118, 210, 0.2)',  // Light blue border
+                position: 'relative',
+                '&::before': {  // Left border accent
+                  content: '""',
+                  position: 'absolute',
+                  left: 0,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  width: '4px',
+                  height: '80%',
+                  backgroundColor: '#1976d2',
+                  borderRadius: '0 2px 2px 0'
+                }
+              }}>
+                <div style={{ 
+                  direction: 'rtl',
+                  textAlign: 'right',
+                  color: '#2c3e50',
+                  fontFamily: 'Rubik, Arial, sans-serif',
+                  fontSize: '1rem',
+                  lineHeight: '1.8'
+                }}>
+                  <span style={{ 
+                    fontWeight: 700,
+                    color: '#000000',
+                    marginRight: '4px'
+                  }}>
+                    הסבר:
+                  </span>
+                  <div 
+                    dangerouslySetInnerHTML={{ 
+                      __html: question.solution.explanation
+                    }} 
+                  />
+                </div>
+              </Box>
+            ) : (
               <>
-                <Divider sx={{ mb: 2 }} />
-                
                 <Button
                   onClick={() => setShowSolution(!showSolution)}
-                  endIcon={showSolution ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
                   sx={{ 
                     width: '100%',
-                    justifyContent: 'space-between',
+                    p: 2.5,
                     color: '#1976d2',
-                    mb: 2,
-                    border: '1px solid #1976d2',
+                    backgroundColor: '#f8f9fa',
                     borderRadius: '8px',
-                    padding: '12px 20px',
-                    backgroundColor: 'transparent',
+                    border: '1px solid rgba(25, 118, 210, 0.2)',
                     '&:hover': {
-                      backgroundColor: 'rgba(25, 118, 210, 0.04)',
-                      borderColor: '#1565c0'
+                      backgroundColor: '#f1f3f5',
+                      border: '1px solid rgba(25, 118, 210, 0.3)'
+                    },
+                    display: 'flex',
+                    justifyContent: 'flex-start',
+                    '& .MuiButton-startIcon': {
+                      marginLeft: '12px',
+                      marginRight: '-4px',
+                      order: 2,
+                      '& svg': {
+                        fontSize: '1.5rem'
+                      }
                     }
                   }}
+                  startIcon={showSolution ? <ExpandLessIcon /> : <ExpandMoreIcon />}
                 >
-                  <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                  <Typography 
+                    sx={{ 
+                      fontWeight: 600,
+                      fontFamily: 'Rubik, Arial, sans-serif',
+                      fontSize: '1.25rem',
+                      textAlign: 'right',
+                      color: '#1976d2',
+                      order: 1
+                    }}
+                  >
                     הצג פתרון מלא
                   </Typography>
                 </Button>
-
                 <Collapse in={showSolution}>
                   <Box sx={{ 
-                    mb: 4,
-                    backgroundColor: '#f5f7fa',
-                    border: '1px solid #e0e0e0',
-                    borderRadius: 2,
                     p: 3,
-                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
+                    backgroundColor: '#ffffff'
                   }}>
-                    {/* Solution Section */}
-                    <Box sx={{ mb: 4 }}>
-                      {question.solution.explanation && (
-                        <Typography 
-                          sx={{ 
-                            color: '#2c3e50', 
-                            mb: 2
-                          }}
-                        >
-                          {renderMathText(question.solution.explanation)}
-                        </Typography>
-                      )}
-                      {question.solution.steps?.map((step, index) => (
-                        <Typography 
-                          key={index} 
-                          sx={{ 
-                            mb: 2,
-                            color: '#2c3e50',
-                            pl: 2,
-                            borderRight: '3px solid #e0e0e0',
-                            pr: 2,
-                            py: 1
-                          }}
-                        >
-                          {renderMathText(step.explanation)}
-                        </Typography>
-                      ))}
+                    {/* Explanation and Steps */}
+                    <Box sx={{ 
+                      p: 3,
+                      backgroundColor: '#f1f5f9',  // Darker gray background
+                      borderBottom: '1px solid rgba(0, 0, 0, 0.1)'
+                    }}>
+                      <div 
+                        style={{ 
+                          direction: 'rtl',
+                          textAlign: 'right',
+                          color: '#1a202c',
+                          fontFamily: 'Rubik, Arial, sans-serif',
+                          fontSize: '1rem',
+                          lineHeight: '1.6'
+                        }}
+                      >
+                        {/* Explanation content */}
+                        {question.solution.explanation && (
+                          <div 
+                            style={{ 
+                              marginBottom: '24px',
+                              textAlign: 'right',
+                              lineHeight: 1.8
+                            }}
+                            dangerouslySetInnerHTML={{ 
+                              __html: question.solution.explanation
+                            }} 
+                          />
+                        )}
+
+                        {/* Steps content */}
+                        {question.solution.steps && question.solution.steps.length > 0 && (
+                          <div style={{ marginBottom: '24px' }}>
+                            <div style={{ 
+                              color: '#000000',
+                              fontWeight: 700,
+                              marginBottom: '8px',
+                              fontFamily: 'Rubik, Arial, sans-serif',
+                              direction: 'rtl',
+                              display: 'flex',
+                              justifyContent: 'flex-start'
+                            }}>
+                              שלבי פתרון:
+                            </div>
+                            <div style={{ paddingRight: '16px' }}>
+                              {question.solution.steps.map((step, index) => (
+                                <div 
+                                  key={index}
+                                  style={{ 
+                                    marginBottom: '12px',
+                                    display: 'flex',
+                                    alignItems: 'flex-start',
+                                    gap: '8px',
+                                    color: '#1a202c'  // Darker gray
+                                  }}
+                                >
+                                  <span style={{ fontWeight: 600, minWidth: '24px' }}>
+                                    {index + 1}.
+                                  </span>
+                                  <div 
+                                    style={{ 
+                                      textAlign: 'right',
+                                      lineHeight: 1.8,
+                                      color: '#1a202c'  // Darker gray
+                                    }}
+                                    dangerouslySetInnerHTML={{ 
+                                      __html: step.explanation
+                                    }} 
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </Box>
 
-                    <Divider sx={{ mb: 4, borderColor: '#e0e0e0' }} />
-
-                    {/* Final Answer Section */}
+                    {/* Final Answer with darker background */}
                     {question.solution.final_answer && (
-                      <Box sx={{ mb: 2 }}>
-                        <Typography 
-                          variant="h6" 
-                          sx={{ 
-                            fontWeight: 'bold', 
-                            mb: 2, 
-                            color: '#2c3e50',
-                            borderBottom: '2px solid #e0e0e0',
-                            pb: 1
+                      <Box sx={{ 
+                        p: 3,
+                        backgroundColor: '#e2e8f0',  // Even darker gray for final answer
+                        borderTop: '1px solid rgba(0, 0, 0, 0.1)'
+                      }}>
+                        <div style={{ 
+                          color: '#000000',
+                          fontWeight: 700,
+                          marginBottom: '12px',
+                          fontFamily: 'Rubik, Arial, sans-serif',
+                          direction: 'rtl',
+                          display: 'flex',
+                          justifyContent: 'flex-start',
+                          fontSize: '1.1rem'
+                        }}>
+                          תשובה סופית:
+                        </div>
+                        <div 
+                          style={{ 
+                            direction: 'rtl',
+                            textAlign: 'right',
+                            lineHeight: 1.8,
+                            color: '#000000',
+                            fontFamily: 'Rubik, Arial, sans-serif',
+                            fontSize: '1.1rem',
+                            fontWeight: 500
                           }}
-                        >
-                          תשובה סופית
-                        </Typography>
-                        <Typography 
-                          sx={{ 
-                            color: '#2c3e50',
-                            fontWeight: 'medium',
-                            p: 2
-                          }}
-                        >
-                          {renderMathText(question.solution.final_answer)}
-                        </Typography>
+                          dangerouslySetInnerHTML={{ 
+                            __html: question.solution.final_answer
+                          }} 
+                        />
                       </Box>
                     )}
                   </Box>
                 </Collapse>
               </>
             )}
-
-            {/* Action Buttons */}
-            <Box sx={{ 
-              display: 'flex', 
-              justifyContent: 'space-between',
-              mt: 3 
-            }}>
-              <Button
-                variant="outlined"
-                sx={{ 
-                  minWidth: 120,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 1
-                }}
-                onClick={onRetry}
-              >
-                נסה שוב
-                <ReplayIcon />
-              </Button>
-              <Button
-                variant="contained"
-                sx={{ 
-                  minWidth: 120,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 1
-                }}
-                onClick={onNextQuestion}
-              >
-                שאלה הבאה
-                <ArrowBackIcon />
-              </Button>
-            </Box>
-          </>
+          </Box>
         )}
+
+        {/* Bottom Action Buttons */}
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'flex-end',
+          mt: 3
+        }}>
+          <Stack 
+            direction="row" 
+            spacing={1}
+          >
+            {/* Retry Button - Leftmost */}
+            <Button
+              variant="contained"
+              onClick={onRetry}
+              sx={{
+                backgroundColor: '#1976d2',
+                '&:hover': {
+                  backgroundColor: '#1565c0'
+                },
+                padding: '6px 16px'
+              }}
+            >
+              <>
+                נסה שוב
+                <ReplayIcon sx={{ marginRight: 1 }} />
+              </>
+            </Button>
+
+            {/* Next Question Button */}
+            <Button
+              variant="contained"
+              onClick={onNextQuestion}
+              sx={{
+                backgroundColor: '#1976d2',
+                '&:hover': {
+                  backgroundColor: '#1565c0'
+                },
+                padding: '6px 16px'
+              }}
+            >
+              <>
+                שאלה הבאה
+                <NavigateNextIcon sx={{ 
+                  marginRight: 1,
+                  transform: 'rotate(180deg)'  // Rotate arrow for RTL
+                }} />
+              </>
+            </Button>
+          </Stack>
+        </Box>
       </Paper>
     </Fade>
   );
