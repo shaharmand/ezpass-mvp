@@ -233,6 +233,7 @@ function FeedbackSection({
 
           {/* Action Icons */}
           <Box sx={{ display: 'flex', gap: 1 }}>
+            {/* Retry Icon */}
             <Tooltip title="נסה שוב" placement="bottom">
               <IconButton
                 onClick={onRetry}
@@ -241,12 +242,20 @@ function FeedbackSection({
                   color: '#1976d2',
                   '&:hover': {
                     backgroundColor: 'rgba(25, 118, 210, 0.04)'
+                  },
+                  padding: '8px',  // Increased padding
+                  '& svg': {
+                    fontSize: '1.75rem',  // Increased icon size
+                    strokeWidth: 1.5,  // Added stroke width
+                    stroke: 'currentColor'  // Added stroke color
                   }
                 }}
               >
                 <ReplayIcon />
               </IconButton>
             </Tooltip>
+
+            {/* Next Question Icon */}
             <Tooltip title="שאלה הבאה" placement="bottom">
               <IconButton
                 onClick={onNextQuestion}
@@ -255,6 +264,12 @@ function FeedbackSection({
                   color: '#1976d2',
                   '&:hover': {
                     backgroundColor: 'rgba(25, 118, 210, 0.04)'
+                  },
+                  padding: '8px',  // Increased padding
+                  '& svg': {
+                    fontSize: '1.75rem',  // Increased icon size
+                    strokeWidth: 1.5,  // Added stroke width
+                    stroke: 'currentColor'  // Added stroke color
                   }
                 }}
               >
