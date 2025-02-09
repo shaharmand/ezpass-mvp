@@ -51,77 +51,67 @@ function FeedbackSection({
   feedback,
   isCorrect,
   onRetry,
-  onNextQuestion
+  onNextQuestion,
+  isProcessing
 }) {
-  const [isProcessing, setIsProcessing] = useState(false);
+  // All state hooks first
   const [showSolution, setShowSolution] = useState(false);
 
-  // Add useEffect for MathJax rendering
+  // All useEffects next
   useEffect(() => {
     if (window.MathJax && (feedback?.analysis || showSolution)) {
       window.MathJax.typesetPromise?.()
         .catch((err) => console.error('MathJax typesetting failed:', err));
     }
-  }, [feedback, showSolution]); // Re-run when feedback or solution changes
+  }, [feedback, showSolution]);
 
-  // Add this console log to check the full question object
   useEffect(() => {
     console.log('Full question object:', question);
-    console.log('Question Type:', question?.question?.type);  // Changed to access question.question.type
+    console.log('Question Type:', question?.question?.type);
     console.log('Is Multiple Choice:', question?.question?.type === 'multiple_choice');
   }, [question]);
 
-  // Add console log to check isCorrect value
   useEffect(() => {
     console.log('isCorrect:', isCorrect);
     console.log('feedback:', feedback);
   }, [isCorrect, feedback]);
 
-  // Make sure isCorrect is properly derived from feedback
-  const isCorrectMemo = useMemo(() => {
-    if (!feedback?.assessment) return false;
-    if (question?.question?.type === 'multiple_choice') {
-      return feedback.assessment.is_correct;
-    }
-    return feedback.assessment.correctness_percentage >= 80;
-  }, [feedback, question]);
-
-  // Helper function for color based on score
-  const getColorByScore = (score) => {
-    if (score >= 80) return '#2e7d32';  // Green
-    if (score >= 55) return '#ed6c02';  // Orange
-    return '#d32f2f';  // Red
-  };
-
-  // Get the current color based on question type and score
-  const getCurrentColor = () => {
-    if (question?.question?.type === 'multiple_choice') {
-      return feedback?.assessment?.correctness_percentage === 100 ? '#2e7d32' : '#d32f2f';  // Green for 100, Red for 0
-    }
-    // For other question types
-    const score = feedback?.assessment?.correctness_percentage || 0;
-    if (score >= 80) return '#2e7d32';  // Green
-    if (score >= 55) return '#ed6c02';  // Orange
-    return '#d32f2f';  // Red
-  };
-
-  // Auto-expand solution for multiple choice questions
   useEffect(() => {
     if (question?.question?.type === 'multiple_choice') {
       setShowSolution(true);
     }
   }, [question]);
 
+  // Helper functions
+  const getColorByScore = (score) => {
+    if (score >= 80) return '#2e7d32';
+    if (score >= 55) return '#ed6c02';
+    return '#d32f2f';
+  };
+
+  // useMemo hooks last
+  const currentColor = useMemo(() => {
+    if (isProcessing || !feedback?.assessment) {
+      return '#1976d2';
+    }
+    if (question?.question?.type === 'multiple_choice') {
+      return feedback.assessment.correctness_percentage === 100 ? '#2e7d32' : '#d32f2f';
+    }
+    return getColorByScore(feedback.assessment.correctness_percentage || 0);
+  }, [question, feedback, isProcessing]);
+
+  // Early returns
   if (isProcessing) {
     return (
       <Fade in={true}>
         <Paper 
           elevation={0}
           sx={{ 
-            p: 4,
+            p: 3,
             backgroundColor: '#f8f9fa',
             borderRadius: 2,
-            border: '1px solid rgba(0, 0, 0, 0.1)'
+            border: '1px solid rgba(0, 0, 0, 0.1)',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
           }}
         >
           <FeedbackLoadingAnimation />
@@ -130,12 +120,11 @@ function FeedbackSection({
     );
   }
 
-  if (!feedback || !feedback.assessment) {
+  if (!feedback?.assessment) {
     return null;
   }
 
-  const isLowScore = feedback.assessment.correctness_percentage < 50;
-
+  // Main render
   return (
     <Fade in={true}>
       <Paper 
@@ -168,7 +157,7 @@ function FeedbackSection({
               variant="h6" 
               sx={{ 
                 fontFamily: 'Rubik, Arial, sans-serif',
-                color: getCurrentColor(),
+                color: currentColor,
                 margin: 0,
                 display: 'flex',
                 alignItems: 'center',

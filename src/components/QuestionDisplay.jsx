@@ -29,6 +29,7 @@ import {
   getFullSolution,
   getResources
 } from '../services/assistanceService';
+import FeedbackSection from './FeedbackSection';
 
 const openai = new OpenAI({
   apiKey: process.env.REACT_APP_OPENAI_API_KEY,
@@ -181,6 +182,9 @@ const QuestionDisplay = forwardRef(({
   const [error, setError] = useState(null);
   const [showSolution, setShowSolution] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [feedback, setFeedback] = useState(null);
+  const [isCorrect, setIsCorrect] = useState(null);
 
   // Update the MathJax configuration useEffect
   useEffect(() => {
@@ -599,6 +603,19 @@ const QuestionDisplay = forwardRef(({
     }
   };
 
+  const handleRetry = () => {
+    setFeedback(null);
+    setIsCorrect(null);
+    setIsProcessing(false);
+  };
+
+  const handleNextQuestion = () => {
+    setFeedback(null);
+    setIsCorrect(null);
+    setIsProcessing(false);
+    onSkipQuestion();  // Use the existing skip question handler
+  };
+
   // Expose generateQuestion method through ref
   useImperativeHandle(ref, () => ({
     generateQuestion
@@ -822,6 +839,18 @@ const QuestionDisplay = forwardRef(({
             </Menu>
           </Box>
         </Paper>
+      )}
+
+      {/* Always render FeedbackSection when answer is submitted */}
+      {(isProcessing || feedback) && (
+        <FeedbackSection
+          question={question}
+          feedback={feedback}
+          isCorrect={isCorrect}
+          onRetry={handleRetry}
+          onNextQuestion={handleNextQuestion}
+          isProcessing={isProcessing}
+        />
       )}
     </Box>
   );
